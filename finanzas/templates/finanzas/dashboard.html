@@ -46,5 +46,36 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="bg-white p-6 rounded shadow mt-6">
+    <h2 class="text-xl mb-4 font-bold">Distribución de Gastos</h2>
+    <canvas id="gastosChart" width="400" height="200"></canvas>
+</div>
+
+<script>
+// Función para generar colores aleatorios
+function generarColores(cantidad) {
+    let colores = [];
+    for (let i = 0; i < cantidad; i++) {
+        colores.push('#' + Math.floor(Math.random()*16777215).toString(16));
+    }
+    return colores;
+}
+
+const ctx = document.getElementById('gastosChart').getContext('2d');
+const dataCategorias = {{ totales_categorias|safe }};
+
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: {{ nombres_categorias|safe }},
+        datasets: [{
+            data: dataCategorias,
+            backgroundColor: generarColores(dataCategorias.length) // Se generan dinámicamente
+        }]
+    }
+});
+</script>
 {% endblock %}
 
