@@ -9,6 +9,11 @@
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form method="GET" class="mb-6 flex gap-2">
+        <input type="month" name="mes" value="{{ mes_actual }}" class="p-2 border rounded">
+        <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded">Filtrar</button>
+    </form>
+
     <div class="bg-white p-6 rounded shadow">
         <h2 class="text-xl mb-4 font-bold">Últimas Transacciones</h2>
         <table class="w-full text-left">

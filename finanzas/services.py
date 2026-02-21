@@ -17,14 +17,14 @@ def get_gastos_por_categoria():
         .order_by('-total') # Ordenamos de mayor a menor gasto 
 
 
-def calcular_resumen_financiero():
+def calcular_resumen_financiero(anio, mes):
     """
     Retorna un diccionario con el saldo total, ingresos y gastos.
     """
     # Utilizamos .aggregate() para que la base de datos haga la suma.
     # Es mucho más rápido que sumar en Python.
-    totales = Transaccion.objects.values('categoria__tipo').annotate(total=Sum('monto'))
-    
+    transacciones = Transaccion.objects.filter(fecha__year=anio, fecha__month=mes)
+    totales = transacciones.values('categoria__tipo').annotate(total=Sum('monto'))
     # Transformamos el resultado para que sea fácil de leer
     resumen = {'ingresos': 0, 'gastos': 0}
     for item in totales:
