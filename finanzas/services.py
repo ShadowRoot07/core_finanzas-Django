@@ -10,8 +10,11 @@ def get_saldo_total():
 
 
 def get_gastos_por_categoria():
-    # Retorna un diccionario {nombre_categoria: total_gastado}
-    return Transaccion.objects.filter(categoria__tipo='G').values('categoria__nombre').annotate(total=Sum('monto'))
+    # Filtramos solo gastos ('G'), agrupamos por nombre de categoría y sumamos el monto
+    return Transaccion.objects.filter(categoria__tipo='G') \
+        .values('categoria__nombre') \
+        .annotate(total=Sum('monto')) \
+        .order_by('-total') # Ordenamos de mayor a menor gasto 
 
 
 def calcular_resumen_financiero():

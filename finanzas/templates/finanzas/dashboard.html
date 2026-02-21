@@ -2,35 +2,48 @@
 {% block content %}
 <h1 class="text-3xl font-bold mb-6">Dashboard de Finanzas</h1>
 
-<div class="grid grid-cols-3 gap-4 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     <div class="bg-white p-4 rounded shadow">Ingresos: ${{ resumen.ingresos }}</div>
     <div class="bg-white p-4 rounded shadow">Gastos: ${{ resumen.gastos }}</div>
     <div class="bg-white p-4 rounded shadow font-bold text-blue-600">Saldo: ${{ resumen.saldo_neto }}</div>
 </div>
 
-<div class="bg-white p-6 rounded shadow">
-    <h2 class="text-xl mb-4">Últimas Transacciones</h2>
-    <table class="w-full text-left">
-        <thead><tr><th>Descripción</th><th>Monto</th><th>Fecha</th></tr></thead>
-        <tbody>
-            {% for t in transacciones %}
-            <tr class="border-t">
-                <td>{{ t.descripcion }}</td>
-                <td>{{ t.monto }}</td>
-                <td>{{ t.fecha }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-        <div class="bg-white p-6 rounded shadow mb-8">
-        <h2 class="text-xl mb-4">Nueva Transacción</h2>
-        <form method="POST" class="space-y-4">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
-                Guardar Transacción
-            </button>
-        </form>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl mb-4 font-bold">Últimas Transacciones</h2>
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-gray-600"><th>Descripción</th><th>Monto</th></tr>
+            </thead>
+            <tbody>
+                {% for t in transacciones %}
+                <tr class="border-t"><td class="py-2">{{ t.descripcion }}</td><td class="py-2">${{ t.monto }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="space-y-6">
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-xl mb-4 font-bold">Gastos por Categoría</h2>
+            <table class="w-full">
+                <thead class="border-b"><tr class="text-gray-600"><th class="text-left py-2">Categoría</th><th class="text-right py-2">Total</th></tr></thead>
+                <tbody>
+                    {% for item in gastos_por_categoria %}
+                    <tr class="border-b"><td class="py-2">{{ item.categoria__nombre }}</td><td class="py-2 text-right">${{ item.total }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-xl mb-4 font-bold">Nueva Transacción</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Guardar</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

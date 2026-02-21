@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .services import calcular_resumen_financiero
 from .models import Transaccion
 from .forms import TransaccionForm
+from .services import calcular_resumen_financiero, get_gastos_por_categoria
 
 def dashboard(request):
     resumen = calcular_resumen_financiero()
@@ -17,9 +18,9 @@ def dashboard(request):
         form = TransaccionForm() 
     
     context = {
-        'resumen': resumen,
-        'transacciones': transacciones,
-        'form': form, # Pasamos el formulario al template
+        'resumen': calcular_resumen_financiero(),
+        'transacciones': Transaccion.objects.all().order_by('-fecha')[:10],
+        'gastos_por_categoria': get_gastos_por_categoria(),
+        'form': form,
     }
     return render(request, 'finanzas/dashboard.html', context)
-
