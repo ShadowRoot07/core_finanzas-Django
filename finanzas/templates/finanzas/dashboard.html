@@ -30,6 +30,14 @@
         </table>
     </div>
 
+<div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold">Últimas Transacciones</h2>
+    <a href="{% url 'exportar_csv' %}" class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">
+        Descargar CSV
+    </a>
+</div>
+
+
     <div class="space-y-6">
         <div class="bg-white p-6 rounded shadow">
             <h2 class="text-xl mb-4 font-bold">Gastos por Categoría</h2>
@@ -53,6 +61,8 @@
         </div>
     </div>
 </div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="bg-white p-6 rounded shadow mt-6">
