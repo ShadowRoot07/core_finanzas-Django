@@ -7,6 +7,8 @@ from django.utils import timezone
 from .models import Transaccion
 from .forms import TransaccionForm
 from .services import calcular_resumen_financiero, get_gastos_por_categoria
+from .reports import generar_pdf_finanzas
+
 
 def dashboard(request):
     # 1. Obtener mes/año del filtro o usar el actual
@@ -67,3 +69,18 @@ def exportar_csv(request):
 
     return response
 
+
+def descargar_reporte_pdf(request):
+    # 1. Obtenemos el mes (reutilizamos la lógica del dashboard)
+    mes_seleccionado = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
+    anio, mes = map(int, mes_seleccionado.split('-'))
+    
+    # 2. Obtenemos los datos necesarios (los mismos que para el dashboard)
+    context = {
+        'resumen': calcular_resumen_financiero(anio, mes),
+        'transacciones': Transaccion.objects.filter(fecha__year=anio, fecha__month=mes).order_by('-fecha'),
+        'mes': mes_seleccionado
+    }
+    
+    # 3. Llamamos a nuestra función separada que genera el PDF
+    return generar_pdf_finanzas(context)

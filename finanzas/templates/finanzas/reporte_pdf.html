@@ -1,0 +1,14 @@
+<html>
+<head><style>body { font-family: sans-serif; } table { width: 100%; border: 1px solid #000; }</style></head>
+<body>
+    <h1>Reporte Financiero</h1>
+    <p>Saldo Neto: ${{ resumen.saldo_neto }}</p>
+    <table>
+        <tr><th>Descripción</th><th>Monto</th></tr>
+        {% for t in transacciones %}
+        <tr><td>{{ t.descripcion }}</td><td>{{ t.monto }}</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+
