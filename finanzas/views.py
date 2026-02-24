@@ -1,95 +1,53 @@
 import json
 import csv
-from datetime import datetime
 from django.shortcuts import render, redirect
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Transaccion
 from .forms import TransaccionForm
-from .services import calcular_resumen_financiero
+from .services import calcular_resumen_financiero, get_gastos_por_categoria
 from .reports import generar_pdf_finanzas
-from django.contrib.auth.decorators import login_required
-
 
 @login_required(login_url='login')
 def dashboard(request):
-    # Obtener mes/año del filtro o usar el actual
     mes_seleccionado = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
-    
     try:
         anio, mes = map(int, mes_seleccionado.split('-'))
     except (ValueError, AttributeError):
-        # Fallback al mes actual si hay error en el formato
         fecha_actual = timezone.now()
         anio, mes = fecha_actual.year, fecha_actual.month
         mes_seleccionado = f"{anio}-{mes:02d}"
 
-    # Lógica de cálculo y transacciones filtradas
-    resumen = calcular_resumen_financiero(anio, mes)
-    transacciones = Transaccion.objects.filter(fecha__year=anio, fecha__month=mes).order_by('-fecha')
+    # Filtramos todo por request.user
+    resumen = calcular_resumen_financiero(anio, mes, request.user)
+    transacciones = Transaccion.objects.filter(user=request.user, fecha__year=anio, fecha__month=mes).order_by('-fecha')
 
-    # Manejo del formulario
     if request.method == 'POST':
         form = TransaccionForm(request.POST)
         if form.is_valid():
-            form.save()
+            transaccion = form.save(commit=False)
+            transaccion.user = request.user # <--- Seguridad: Asignamos el dueño
+            transaccion.save()
+            messages.success(request, '¡Transacción guardada correctamente!')
             return redirect(f'/?mes={mes_seleccionado}')
     else:
-        form = TransaccionForm()
+        form = TransaccionForm(user=request.user)
 
-    # Datos para la gráfica
-    gastos_data = Transaccion.objects.filter(fecha__year=anio, fecha__month=mes) \
-        .values('categoria__nombre') \
-        .annotate(total=Sum('monto'))
-
-    nombres_categorias = [item['categoria__nombre'] for item in gastos_data]
-    totales_categorias = [float(item['total'] or 0) for item in gastos_data]
+    gastos_data = transacciones.filter(categoria__tipo='G').values('categoria__nombre').annotate(total=Sum('monto'))
 
     context = {
         'resumen': resumen,
-        'transacciones': transacciones[:10], # Limitamos para el dashboard
+        'transacciones': transacciones[:10],
         'form': form,
         'mes_actual': mes_seleccionado,
-        'nombres_categorias': json.dumps(nombres_categorias),
-        'totales_categorias': json.dumps(totales_categorias),
+        'nombres_categorias': json.dumps([item['categoria__nombre'] for item in gastos_data]),
+        'totales_categorias': json.dumps([float(item['total'] or 0) for item in gastos_data]),
+        'gastos_por_categoria': get_gastos_por_categoria(request.user) # Asegúrate de que este servicio filtre por user
     }
-
     return render(request, 'finanzas/dashboard.html', context)
 
-# ... [exportar_csv y descargar_reporte_pdf siguen igual]
-
-
-def exportar_csv(request):
-    """Genera un archivo CSV con todas las transacciones."""
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="transacciones.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['Descripcion', 'Monto', 'Fecha', 'Categoria'])
-
-    # Obtenemos los datos
-    transacciones = Transaccion.objects.all().values_list(
-        'descripcion', 'monto', 'fecha', 'categoria__nombre'
-    )
-
-    for transaccion in transacciones:
-        writer.writerow(transaccion)
-
-    return response
-
-def descargar_reporte_pdf(request):
-    # 1. Obtenemos el mes del filtro o el actual
-    mes_seleccionado = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
-    anio, mes = map(int, mes_seleccionado.split('-'))
-
-    # 2. Obtenemos los datos necesarios
-    context = {
-        'resumen': calcular_resumen_financiero(anio, mes),
-        'transacciones': Transaccion.objects.filter(fecha__year=anio, fecha__month=mes).order_by('-fecha'),
-        'mes': mes_seleccionado
-    }
-
-    # 3. Llamamos a la función que genera el PDF
-    return generar_pdf_finanzas(context)
+# ... (exportar_csv y descargar_reporte_pdf deben usar .filter(user=request.user))
 

@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
-<body>
-    <h2>Iniciar Sesión</h2>
+{% extends 'finanzas/base.html' %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">Iniciar Sesión</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Entrar</button>
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">Entrar</button>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
 
