@@ -9,7 +9,10 @@ from .models import Transaccion
 from .forms import TransaccionForm
 from .services import calcular_resumen_financiero
 from .reports import generar_pdf_finanzas
+from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url='login')
 def dashboard(request):
     # Obtener mes/año del filtro o usar el actual
     mes_seleccionado = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
