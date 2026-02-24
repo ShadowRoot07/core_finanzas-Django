@@ -49,5 +49,35 @@ def dashboard(request):
     }
     return render(request, 'finanzas/dashboard.html', context)
 
-# ... (exportar_csv y descargar_reporte_pdf deben usar .filter(user=request.user))
+
+# Asegúrate de usar login_required en todas las vistas sensibles
+@login_required(login_url='login')
+def exportar_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="transacciones.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Descripcion', 'Monto', 'Fecha', 'Categoria'])
+
+    # CORRECCIÓN: Filtrar por el usuario actual
+    transacciones = Transaccion.objects.filter(user=request.user).values_list(
+        'descripcion', 'monto', 'fecha', 'categoria__nombre'
+    )
+
+    for transaccion in transacciones:
+        writer.writerow(transaccion)
+    return response
+
+@login_required(login_url='login')
+def descargar_reporte_pdf(request):
+    mes_seleccionado = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
+    anio, mes = map(int, mes_seleccionado.split('-'))
+
+    # CORRECCIÓN: Pasar el usuario a calcular_resumen_financiero y filtrar transacciones
+    context = {
+        'resumen': calcular_resumen_financiero(anio, mes, request.user),
+        'transacciones': Transaccion.objects.filter(user=request.user, fecha__year=anio, fecha__month=mes).order_by('-fecha'),
+        'mes': mes_seleccionado
+    }
+    return generar_pdf_finanzas(context)
 
