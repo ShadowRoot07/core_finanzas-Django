@@ -8,30 +8,34 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Transaccion
 from .forms import TransaccionForm
-from .services import calcular_resumen_financiero, get_gastos_por_categoria, get_dashboard_data
+from .services import calcular_resumen_financiero, get_gastos_por_categoria, get_dashboard_data, crear_cuenta_para_usuario, crear_categoria_para_usuario
 from .reports import generar_pdf_finanzas
 
 
 @login_required(login_url='login')
 def dashboard(request):
-    # 1. Obtención de fecha (lo dejamos aquí por simplicidad)
     mes_str = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
     anio, mes = map(int, mes_str.split('-'))
 
-    # 2. Lógica de POST delegada
     if request.method == 'POST':
-        form = TransaccionForm(request.POST, user=request.user)
-        if form.is_valid():
-            t = form.save(commit=False)
-            t.user = request.user
-            t.save()
-            messages.success(request, '¡Transacción guardada correctamente!')
-            return redirect(f'/?mes={mes_str}')
-    
-    # 3. Obtención de datos usando el nuevo servicio
+        if 'nueva_categoria' in request.POST:
+            crear_categoria_para_usuario(request.user, request.POST['nombre'], request.POST['tipo'])
+            messages.success(request, 'Categoría creada')
+        elif 'nueva_cuenta' in request.POST:
+            crear_cuenta_para_usuario(request.user, request.POST['nombre'])
+            messages.success(request, 'Cuenta creada')
+        else:
+            form = TransaccionForm(request.POST, user=request.user)
+            if form.is_valid():
+                t = form.save(commit=False)
+                t.user = request.user
+                t.save()
+                messages.success(request, 'Transacción guardada')
+        return redirect(f'/?mes={mes_str}')
+
+    # AQUÍ ESTABA EL ERROR: Necesitas recuperar los datos para el contexto
     data = get_dashboard_data(request.user, anio, mes)
     
-    # 4. Contexto limpio
     context = {
         **data,
         'form': TransaccionForm(user=request.user),

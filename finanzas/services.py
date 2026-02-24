@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from .models import Transaccion
+from .models import Categoria, Cuenta
 
 
 def get_saldo_total(user):
@@ -48,3 +49,10 @@ def get_dashboard_data(user, anio, mes):
         'gastos_por_categoria': get_gastos_por_categoria(user)
     }
 
+
+def crear_categoria_para_usuario(user, nombre, tipo):
+    return Categoria.objects.create(user=user, nombre=nombre, tipo=tipo)
+
+
+def crear_cuenta_para_usuario(user, nombre):
+    return Cuenta.objects.create(user=user, nombre=nombre)

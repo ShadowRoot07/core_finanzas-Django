@@ -59,6 +59,31 @@
             </div>
         </div>
 
+        <div class="bg-white p-4 md:p-6 rounded shadow mb-6">
+            <h2 class="text-xl mb-4 font-bold">Configuración Rápida</h2>
+    
+            <form method="POST" class="mb-4">
+                {% csrf_token %}
+                <div class="flex flex-wrap gap-2">
+                    <input type="text" name="nombre" placeholder="Nueva Categoría" required class="border p-2 rounded flex-1">
+                    <select name="tipo" class="border p-2 rounded">
+                        <option value="G">Gasto</option>
+                        <option value="I">Ingreso</option>
+                    </select>
+                    <button type="submit" name="nueva_categoria" class="bg-green-600 text-white px-4 py-2 rounded">+</button>
+                </div>
+            </form>
+        
+            <form method="POST">
+                {% csrf_token %}
+                <div class="flex gap-2">
+                    <input type="text" name="nombre" placeholder="Nueva Cuenta (ej. Efectivo)" required class="border p-2 rounded flex-1">
+                    <button type="submit" name="nueva_cuenta" class="bg-blue-600 text-white px-4 py-2 rounded">+</button>
+                </div>
+            </form>
+        </div>
+
+
         <div class="bg-white p-4 md:p-6 rounded shadow">
             <h2 class="text-xl mb-4 font-bold">Nueva Transacción</h2>
             <form method="POST">
