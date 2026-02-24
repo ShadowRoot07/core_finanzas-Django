@@ -1,4 +1,6 @@
 {% extends 'finanzas/base.html' %}
+{% block content %}
+
 {% if messages %}
     <div class="fixed top-4 right-4 z-50">
         {% for message in messages %}
@@ -8,12 +10,12 @@
         {% endfor %}
     </div>
 {% endif %}
-{% block content %}
-<h1 class="text-3xl font-bold mb-6">Dashboard de Finanzas</h1>
 
-<form method="GET" class="mb-6 flex gap-2 justify-start items-center">
+<h1 class="text-2xl md:text-3xl font-bold mb-6">Dashboard de Finanzas</h1>
+
+<form method="GET" class="mb-6 flex flex-col md:flex-row gap-2 md:items-center">
     <label class="font-bold">Ver mes:</label>
-    <input type="month" name="mes" value="{{ mes_actual }}" class="p-2 border rounded">
+    <input type="month" name="mes" value="{{ mes_actual }}" class="p-2 border rounded w-full md:w-auto">
     <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded">Filtrar</button>
 </form>
 
@@ -23,90 +25,66 @@
     <div class="bg-white p-4 rounded shadow font-bold text-blue-600">Saldo: ${{ resumen.saldo_neto }}</div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-xl mb-4 font-bold">Últimas Transacciones</h2>
-        <table class="w-full text-left">
-            <thead>
-                <tr class="text-gray-600"><th>Descripción</th><th>Monto</th></tr>
-            </thead>
-            <tbody>
-                {% for t in transacciones %}
-                <tr class="border-t"><td class="py-2">{{ t.descripcion }}</td><td class="py-2">${{ t.monto }}</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-<div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-bold">Últimas Transacciones</h2>
-    <a href="{% url 'exportar_csv' %}" class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">
-        Descargar CSV
-    </a>
-</div>
-
-
-<div class="mt-4">
-    <a href="{% url 'descargar_reporte_pdf' %}?mes={{ mes_actual }}" 
-       class="bg-red-600 text-white px-6 py-3 rounded-lg shadow hover:bg-red-700 transition font-bold">
-        📥 Descargar Reporte PDF
-    </a>
-</div>
-
-
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="space-y-6">
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-xl mb-4 font-bold">Gastos por Categoría</h2>
-            <table class="w-full">
-                <thead class="border-b"><tr class="text-gray-600"><th class="text-left py-2">Categoría</th><th class="text-right py-2">Total</th></tr></thead>
+        <div class="bg-white p-4 md:p-6 rounded shadow overflow-x-auto">
+            <h2 class="text-xl mb-4 font-bold">Últimas Transacciones</h2>
+            <table class="w-full text-left min-w-[300px]">
+                <thead><tr class="text-gray-600"><th>Descripción</th><th>Monto</th></tr></thead>
                 <tbody>
-                    {% for item in gastos_por_categoria %}
-                    <tr class="border-b"><td class="py-2">{{ item.categoria__nombre }}</td><td class="py-2 text-right">${{ item.total }}</td></tr>
+                    {% for t in transacciones %}
+                    <tr class="border-t"><td class="py-2">{{ t.descripcion }}</td><td class="py-2">${{ t.monto }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div class="mt-4 flex flex-col gap-2">
+                <a href="{% url 'exportar_csv' %}" class="bg-green-600 text-white px-4 py-2 rounded text-center text-sm hover:bg-green-700">Descargar CSV</a>
+                <a href="{% url 'descargar_reporte_pdf' %}?mes={{ mes_actual }}" class="bg-red-600 text-white px-4 py-2 rounded text-center text-sm hover:bg-red-700">📥 Descargar PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <div class="bg-white p-4 md:p-6 rounded shadow">
+            <h2 class="text-xl mb-4 font-bold">Gastos por Categoría</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="border-b"><tr class="text-gray-600"><th class="text-left py-2">Categoría</th><th class="text-right py-2">Total</th></tr></thead>
+                    <tbody>
+                        {% for item in gastos_por_categoria %}
+                        <tr class="border-b"><td class="py-2">{{ item.categoria__nombre }}</td><td class="py-2 text-right">${{ item.total }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="bg-white p-6 rounded shadow">
+        <div class="bg-white p-4 md:p-6 rounded shadow">
             <h2 class="text-xl mb-4 font-bold">Nueva Transacción</h2>
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Guardar</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full mt-4">Guardar</button>
             </form>
         </div>
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<div class="bg-white p-6 rounded shadow mt-6">
+<div class="bg-white p-4 md:p-6 rounded shadow mt-6">
     <h2 class="text-xl mb-4 font-bold">Distribución de Gastos</h2>
-    <canvas id="gastosChart" width="400" height="200"></canvas>
+    <canvas id="gastosChart" class="max-h-[300px]"></canvas>
 </div>
 
 <script>
-// Función para generar colores aleatorios
-function generarColores(cantidad) {
-    let colores = [];
-    for (let i = 0; i < cantidad; i++) {
-        colores.push('#' + Math.floor(Math.random()*16777215).toString(16));
-    }
-    return colores;
-}
-
 const ctx = document.getElementById('gastosChart').getContext('2d');
-const dataCategorias = {{ totales_categorias|safe }};
-
 new Chart(ctx, {
     type: 'pie',
     data: {
         labels: {{ nombres_categorias|safe }},
         datasets: [{
-            data: dataCategorias,
-            backgroundColor: generarColores(dataCategorias.length) // Se generan dinámicamente
+            data: {{ totales_categorias|safe }},
+            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6']
         }]
     }
 });
