@@ -1,6 +1,7 @@
 # finanzas/tests/test_integration.py
 import pytest
 from finanzas.tests.factories import TransaccionFactory
+from django.urls import reverse
 
 @pytest.fixture
 def transactions_batch(authenticated_user):
