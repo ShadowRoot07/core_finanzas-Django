@@ -12,7 +12,7 @@
 
 ## 🚀 Demo En Vivo
 Puedes probar la aplicación en el siguiente enlace:
-👉 **[INSERTAR_AQUÍ_TU_LINK_DE_VERCEL]**
+👉 **[https://core-finanzas-django.vercel.app/]**
 
 ### 🔓 Acceso de Prueba (Invitado)
 Para una revisión rápida, utiliza las siguientes credenciales:
