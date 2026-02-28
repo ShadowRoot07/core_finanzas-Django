@@ -3,6 +3,7 @@ dj-database-url
 psycopg2-binary
 gunicorn
 whitenoise
+weasyprint
 pytest-django
 pytest
 
