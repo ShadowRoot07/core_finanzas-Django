@@ -1,0 +1,16 @@
+{
+  "builds": [
+    {
+      "src": "core_finanzas/wsgi.py",
+      "use": "@vercel/python",
+      "config": { "runtime": "python3.12" }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "core_finanzas/wsgi.py"
+    }
+  ]
+}
+
