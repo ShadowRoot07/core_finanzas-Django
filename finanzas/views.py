@@ -66,14 +66,4 @@ def exportar_csv(request):
 
 @login_required(login_url='login')
 def descargar_reporte_pdf(request):
-    mes_seleccionado = request.GET.get('mes', timezone.now().strftime('%Y-%m'))
-    anio, mes = map(int, mes_seleccionado.split('-'))
-
-    # CORRECCIÓN: Pasar el usuario a calcular_resumen_financiero y filtrar transacciones
-    context = {
-        'resumen': calcular_resumen_financiero(anio, mes, request.user),
-        'transacciones': Transaccion.objects.filter(user=request.user, fecha__year=anio, fecha__month=mes).order_by('-fecha'),
-        'mes': mes_seleccionado
-    }
-    return generar_pdf_finanzas(context)
-
+    return HttpResponse("La generación de PDF no está disponible en este entorno temporalmente.")
